@@ -7,6 +7,23 @@ module RSpec
         end
 
         def failure_message_for_should
+          case expected
+          when FalseClass
+            builtin_singleton_message("false")
+          when TrueClass
+            builtin_singleton_message("true")
+          when NilClass
+            bulitin_singleton_message("nil")
+          else
+            arbitrary_object_message
+          end
+        end
+
+        def builtin_singleton_message(type)
+          return "\nexpected #{type}\n     got #{inspect_object(actual)}\n"
+        end
+
+        def arbitrary_object_message
           return <<-MESSAGE
 
 expected #{inspect_object(expected)}
