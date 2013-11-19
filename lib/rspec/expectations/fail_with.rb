@@ -24,6 +24,8 @@ module RSpec
             if any_multiline_strings?(actual, expected)
               message << "\nDiff:" << differ.diff_as_string(coerce_to_string(actual), coerce_to_string(expected))
             end
+          elsif actual.is_a?(Hash) && expected.is_a?(Hash)
+            message << "\nDiff:" << differ.diff_as_hash(actual, expected)
           elsif no_procs?(actual, expected) && no_numbers?(actual, expected)
             message << "\nDiff:" << differ.diff_as_object(actual, expected)
           end

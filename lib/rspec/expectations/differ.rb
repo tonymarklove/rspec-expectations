@@ -63,8 +63,27 @@ module RSpec
         end
       end
 
+      def diff_as_hash(actual, expected)
+        a = JSON.pretty_generate(deep_diff(expected,actual))
+        b = JSON.pretty_generate(deep_diff(actual,expected))
+        color_diff diff_as_string(a,b)
+      end
+
     protected
 
+      def deep_diff(a,b)
+        (a.keys | b.keys).inject({}) do |diff, k|
+          if a[k] != b[k]
+            if a[k].is_a?(Hash) && b[k].is_a?(Hash)
+              diff[k] = deep_diff(a[k],b[k])
+            else
+              diff[k] = a[k]
+            end
+          end
+          diff
+        end
+      end
+      
       def format
         :unified
       end
