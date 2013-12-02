@@ -64,23 +64,24 @@ module RSpec
       end
 
       def diff_as_hash(actual, expected)
-        a = JSON.pretty_generate(deep_diff(expected,actual))
-        b = JSON.pretty_generate(deep_diff(actual,expected))
+        a = JSON.pretty_generate(sort_hash_by_key(actual, true))
+        b = JSON.pretty_generate(sort_hash_by_key(expected, true))
         color_diff diff_as_string(a,b)
       end
 
     protected
 
-      def deep_diff(a,b)
-        (a.keys | b.keys).inject({}) do |diff, k|
-          if a[k] != b[k]
-            if a[k].is_a?(Hash) && b[k].is_a?(Hash)
-              diff[k] = deep_diff(a[k],b[k])
-            else
-              diff[k] = a[k]
+      def sort_hash_by_key(hash, recursive=false, &block)
+        hash.keys.sort(&block).reduce({}) do |seed, key|
+          seed[key] = hash[key]
+          if recursive
+            if seed[key].is_a?(Hash)
+              seed[key] = sort_hash_by_key(seed[key], true, &block)
+            elsif seed[key].is_a?(Array)
+              seed[key] = seed[key].map {|item| item.is_a?(Hash) ? sort_hash_by_key(item, true, &block) : item }
             end
           end
-          diff
+          seed
         end
       end
       
